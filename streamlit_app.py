@@ -6,7 +6,7 @@ from google.oauth2.service_account import Credentials
 # --- 1. SETUP ---
 st.set_page_config(page_title="Jayeone Farms OS", page_icon="🌱", layout="wide")
 
-# --- 2. ENGINE ---
+# --- 2. THE ENGINE ---
 def get_gspread_client():
     creds_dict = st.secrets["gspread_credentials"]
     scopes = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -26,12 +26,11 @@ try:
         st.subheader("📦 Incoming Orders")
         raw_df = fetch_data(sid, "0")
         
-        # --- THE CLEANUP LAYER ---
-        # 1. Strip hidden spaces and drop unwanted columns
+        # --- CLEANUP ---
         raw_df.columns = raw_df.columns.str.strip()
         display_df = raw_df.drop(columns=["Packed/Dispatched", "Status", "Timestamp"], errors='ignore')
         
-        # 2. Kill the 'None' rows (If first column is empty, hide the row)
+        # Kill the 'None' rows from view
         display_df = display_df[display_df.iloc[:, 0].notna()].copy()
 
         # THE INTERACTIVE EDITOR
@@ -39,19 +38,28 @@ try:
 
         if st.button("💾 Save to Google Sheet"):
             with st.spinner("Writing to Digital Fortress..."):
+                # --- THE FIX: Clean 'None' values before saving ---
+                # This prevents the 'Out of range float' JSON error
+                clean_df = edited_df.fillna("") 
+                
                 client = get_gspread_client()
                 sh = client.open_by_key(sid)
                 worksheet = sh.worksheet("ORDERS") 
-                # Updates the sheet with cleaned data
-                worksheet.update([edited_df.columns.values.tolist()] + edited_df.values.tolist())
-                st.success("✅ Changes Saved!")
+                
+                # Convert to list and update
+                data_to_save = [clean_df.columns.values.tolist()] + clean_df.values.tolist()
+                worksheet.update(data_to_save)
+                
+                st.success("✅ Records Successfully Updated!")
                 st.cache_data.clear()
 
     elif page == "Catalogue":
-        st.dataframe(fetch_data(sid, "1608295230").dropna(how='all'), width="stretch", hide_index=True)
+        df = fetch_data(sid, "1608295230").dropna(how='all')
+        st.dataframe(df, width="stretch", hide_index=True)
 
     elif page == "Stock":
-        st.dataframe(fetch_data(sid, "1277793309").dropna(how='all'), width="stretch", hide_index=True)
+        df = fetch_data(sid, "1277793309").dropna(how='all')
+        st.dataframe(df, width="stretch", hide_index=True)
 
 except Exception as e:
     st.error(f"⚠️ {e}")
