@@ -7,7 +7,7 @@ from google.oauth2.service_account import Credentials
 FARM_NAME = "Jayeone Farms"
 st.set_page_config(page_title=FARM_NAME, page_icon="🌱", layout="wide")
 
-# --- 2. DATA ENGINES ---
+# --- 2. THE ENGINE ---
 def get_gspread_client():
     # Pulls clean credentials from Secrets
     creds_dict = st.secrets["gspread_credentials"]
