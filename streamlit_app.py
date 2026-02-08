@@ -1,40 +1,57 @@
 import streamlit as st
 import pandas as pd
 
-# --- 1. SETUP ---
+# --- 1. SETUP & THEME ---
 FARM_NAME = "Jayeone Farms"
 st.set_page_config(page_title=FARM_NAME, page_icon="🌱", layout="wide")
 
-# --- 2. THE ENGINE (HIGH-SPEED & CLEAN) ---
+# Custom CSS to fix the Red color conflict and make it clean
+st.markdown("""
+    <style>
+    .stCheckbox { color: #2E7D32; } /* Changes checkbox text to Farm Green */
+    .stDataFrame { border: 1px solid #e6e9ef; border-radius: 10px; }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- 2. THE ENGINE ---
 @st.cache_data(ttl=600)
 def fetch_data(sid, gid):
     url = f"https://docs.google.com/spreadsheets/d/{sid}/export?format=csv&gid={gid}"
     df = pd.read_csv(url)
-    # CLEANING: This removes any row where the first column is empty or says 'None'
-    df = df.dropna(how='all') # Removes completely empty rows
-    df = df[df.iloc[:, 0].notna()] # Removes rows where the ID/Name is missing
+    df = df.dropna(how='all').reset_index(drop=True)
+    df = df[df.iloc[:, 0].notna()]
     return df
 
 try:
     sid = st.secrets["SHEET_ID"].strip()
     
-    # --- 3. NAVIGATION SIDEBAR ---
     st.sidebar.title("🚜 Farm Manager")
+    page = st.sidebar.radio("View Dashboard:", ["Orders", "Catalogue", "Stock Status"])
     
     if st.sidebar.button("🔄 Sync New Data"):
         st.cache_data.clear()
         st.rerun()
 
-    page = st.sidebar.radio("View Dashboard:", ["Orders", "Catalogue", "Stock Status"])
-
     st.title(f"🌱 {FARM_NAME} OS")
 
-    # --- 4. DISPLAY LOGIC ---
     if page == "Orders":
         st.subheader("📦 Incoming Orders")
         df = fetch_data(sid, "0")
-        # Shows only rows with actual order data
-        st.dataframe(df, width="stretch")
+        
+        # ADDING INTERACTIVITY: The "Selection" checkbox
+        # This replaces the messy red highlight with a clean selection tool
+        edited_df = st.data_editor(
+            df,
+            column_config={
+                "Status": st.column_config.CheckboxColumn(
+                    "Pack Status",
+                    help="Check once item is packed",
+                    default=False,
+                )
+            },
+            disabled=["Order_ID", "Date", "Customer_Name", "Items"], # Stops accidental editing
+            width="stretch"
+        )
 
     elif page == "Catalogue":
         st.subheader("🥗 Product List & Pricing")
