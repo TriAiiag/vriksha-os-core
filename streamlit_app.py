@@ -1,37 +1,48 @@
 import streamlit as st
 import pandas as pd
 
-# 1. PRIVATE CONFIG
+# --- 1. SETUP ---
 FARM_NAME = "Jayeone Farms"
 st.set_page_config(page_title=FARM_NAME, page_icon="🌱", layout="wide")
 
-# This pulls the URL from your PRIVATE Secrets tab instead of the code
-# Make sure your Secrets has: spreadsheet_url = "https://docs.google.com/..."
-BASE_URL = st.secrets["spreadsheet_url"].split('/edit')[0]
+# --- 2. DATA FETCHING ---
+def get_clean_url(raw_url, gid):
+    # This ensures no hidden spaces or /edit junk breaks the link
+    base = raw_url.split('/edit')[0].strip()
+    return f"{base}/export?format=csv&gid={gid}"
 
-# 2. NAVIGATION SIDEBAR
-st.sidebar.title("🚜 Navigation")
-page = st.sidebar.radio("Go to:", ["Orders", "Catalogue", "Stock"])
+try:
+    # Pulling from your private Secrets
+    raw_spreadsheet_url = st.secrets["spreadsheet_url"]
+    
+    @st.cache_data(ttl=60)
+    def fetch_data(gid):
+        final_url = get_clean_url(raw_spreadsheet_url, gid)
+        return pd.read_csv(final_url)
 
-@st.cache_data(ttl=60)
-def get_data(gid):
-    url = f"{BASE_URL}/export?format=csv&gid={gid}"
-    return pd.read_csv(url)
+    # --- 3. NAVIGATION ---
+    st.sidebar.title("🚜 Farm Manager")
+    page = st.sidebar.radio("View Dashboard:", ["Orders", "Catalogue", "Stock"])
 
-# 3. PAGE LOGIC (Using your actual Sheet GIDs)
-st.title(f"🌱 {FARM_NAME} OS")
+    st.title(f"🌱 {FARM_NAME} OS")
 
-if page == "Orders":
-    st.subheader("📦 Recent Orders")
-    df = get_data("0") # GID for Orders
-    st.dataframe(df, use_container_width=True)
+    if page == "Orders":
+        st.subheader("📦 Real-Time Orders")
+        df = fetch_data("0")
+        # Updated for 2026 Streamlit standards
+        st.dataframe(df, width="stretch")
 
-elif page == "Catalogue":
-    st.subheader("🥗 Price List")
-    df = get_data("1277793309") # GID from your screenshot for Catalogue
-    st.dataframe(df, use_container_width=True)
+    elif page == "Catalogue":
+        st.subheader("🥗 Product Catalogue")
+        df = fetch_data("1277793309") 
+        st.dataframe(df, width="stretch")
 
-elif page == "Stock":
-    st.subheader("📉 Inventory Levels")
-    df = get_data("123456789") # Replace with your actual STOCK GID
-    st.dataframe(df, use_container_width=True)
+    elif page == "Stock":
+        st.subheader("📉 Inventory Status")
+        # Using the GID for your STOCK tab
+        df = fetch_data("1374567283") 
+        st.dataframe(df, width="stretch")
+
+except Exception as e:
+    st.error(f"Handshake Error: {e}")
+    st.info("Check that 'spreadsheet_url' in Secrets is a single, clean line.")
