@@ -5,40 +5,89 @@ import pandas as pd
 FARM_NAME = "Jayeone Farms"
 st.set_page_config(page_title=FARM_NAME, page_icon="🌱", layout="wide")
 
-# --- 2. THE ENGINE ---
-def get_export_url(sid, gid):
-    return f"https://docs.google.com/spreadsheets/d/{sid}/export?format=csv&gid={gid}"
+# --- 2. THE ENGINE (WITH HIGH-SPEED CACHING) ---
+# We use 'ttl=600' so the app remembers the data for 10 minutes
+@st.cache_data(ttl=600)
+def fetch_data(sid, gid):
+    url = f"https://docs.google.com/spreadsheets/d/{sid}/export?format=csv&gid={gid}"
+    return pd.read_csv(url)
 
 try:
-    # Uses the clean SHEET_ID from your private Secrets
     sid = st.secrets["SHEET_ID"].strip()
     
-    @st.cache_data(ttl=60)
-    def fetch_data(gid):
-        url = get_export_url(sid, gid)
-        return pd.read_csv(url)
-
     # --- 3. NAVIGATION SIDEBAR ---
     st.sidebar.title("🚜 Farm Manager")
-    page = st.sidebar.radio("View Dashboard:", ["Orders", "Catalogue", "Stock Status"])
+    
+    # Refresh button to force-update if you changed the Google Sheet
+    if st.sidebar.button("🔄 Sync New Data"):
+        st.cache_data.clear()
+        st.rerun()
+
+    page = st.sidebar.radio("View Dashboard:", ["Orders", "Catalogue", "Stock"])
 
     st.title(f"🌱 {FARM_NAME} OS")
 
+    # --- 4. DISPLAY LOGIC ---
     if page == "Orders":
         st.subheader("📦 Incoming Orders")
-        # GID 0 is the 'ORDERS' tab
-        st.dataframe(fetch_data("0"), width="stretch")
+        df = fetch_data(sid, "0")
+        st.dataframe(df, width="stretch")
 
     elif page == "Catalogue":
         st.subheader("🥗 Product List & Pricing")
-        # Updated GID from your screenshot for 'CATALOGUE'
-        st.dataframe(fetch_data("1608295230"), width="stretch")
+        df = fetch_data(sid, "1608295230")
+        st.dataframe(df, width="stretch")
 
-    elif page == "Stock Status":
-        st.subheader("📉 Inventory Levels")
-        # Updated GID from your screenshot for 'STOCK'
-        st.dataframe(fetch_data("1277793309"), width="stretch")
+    elif page == "Stock":
+        st.subheader("📉 Inventory Status")
+        df = fetch_data(sid, "1277793309")
+        st.dataframe(df, width="stretch")
 
 except Exception as e:
-    st.error(f"System Error: {e}")
-    st.info("Ensure your SHEET_ID in Streamlit Secrets is only the ID string.")
+    st.error(f"Handshake Error: {e}")import streamlit as st
+import pandas as pd
+
+# --- 1. SETUP ---
+FARM_NAME = "Jayeone Farms"
+st.set_page_config(page_title=FARM_NAME, page_icon="🌱", layout="wide")
+
+# --- 2. THE ENGINE (WITH HIGH-SPEED CACHING) ---
+# We use 'ttl=600' so the app remembers the data for 10 minutes
+@st.cache_data(ttl=600)
+def fetch_data(sid, gid):
+    url = f"https://docs.google.com/spreadsheets/d/{sid}/export?format=csv&gid={gid}"
+    return pd.read_csv(url)
+
+try:
+    sid = st.secrets["SHEET_ID"].strip()
+    
+    # --- 3. NAVIGATION SIDEBAR ---
+    st.sidebar.title("🚜 Farm Manager")
+    
+    # Refresh button to force-update if you changed the Google Sheet
+    if st.sidebar.button("🔄 Sync New Data"):
+        st.cache_data.clear()
+        st.rerun()
+
+    page = st.sidebar.radio("View Dashboard:", ["Orders", "Catalogue", "Stock"])
+
+    st.title(f"🌱 {FARM_NAME} OS")
+
+    # --- 4. DISPLAY LOGIC ---
+    if page == "Orders":
+        st.subheader("📦 Incoming Orders")
+        df = fetch_data(sid, "0")
+        st.dataframe(df, width="stretch")
+
+    elif page == "Catalogue":
+        st.subheader("🥗 Product List & Pricing")
+        df = fetch_data(sid, "1608295230")
+        st.dataframe(df, width="stretch")
+
+    elif page == "Stock":
+        st.subheader("📉 Inventory Status")
+        df = fetch_data(sid, "1277793309")
+        st.dataframe(df, width="stretch")
+
+except Exception as e:
+    st.error(f"Handshake Error: {e}")
