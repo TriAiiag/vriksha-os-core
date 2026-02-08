@@ -1,37 +1,23 @@
 import streamlit as st
-import pandas as pd
-import urllib.parse
-# We are moving the import inside a try-block to catch the EXACT error
-try:
-    from st_gsheets_connection import GSheetsConnection
-except ImportError:
-    st.error("SYSTEM ALERT: The GSheets library is NOT installed. Check requirements.txt")
+from st_gsheets_connection import GSheetsConnection
 
-# --- CONFIGURATION ---
+# 1. SECURE CONFIG
 FARM_NAME = "Jayeone Farms"
-# We pull it from the hidden vault:
 SECRET_KEY = st.secrets["SECRET_KEY"]
 
 st.set_page_config(page_title=FARM_NAME, page_icon="🌱")
 
-# --- MANUAL OVERRIDE CONNECTION ---
+# 2. THE CONNECTION
 try:
-    # This is the "Brute Force" way to connect
     conn = st.connection("gsheets", type=GSheetsConnection)
     df_cat = conn.read(worksheet="CATALOGUE")
-    df_settings = conn.read(worksheet="SETTINGS")
+    st.success("Digital Fortress Live!")
 except Exception as e:
-    st.error(f"CONNECTION ERROR: {e}")
-    st.info("Check if your Secret URL is on ONE SINGLE LINE in the settings.")
-    df_cat, df_settings = None, None
+    st.error(f"Secret Handshake Failed: {e}")
+    st.info("Check your triple-quotes (''') in the Secrets tab.")
+    df_cat = None
 
-# --- UI (Simplified for Debugging) ---
+# 3. UI
 st.title(f"🌱 {FARM_NAME} OS")
-
 if df_cat is not None:
-    st.success("Fortress Connected!")
-    # Show a simple list to prove it works
-    for idx, row in df_cat.iterrows():
-        st.write(f"✅ {row['Item_Name']} - ₹{row['Price']}")
-else:
-    st.warning("Awaiting Data...")
+    st.dataframe(df_cat)
