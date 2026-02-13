@@ -1,30 +1,52 @@
-# 🌳 Vriksha-OS (by TriAiiag)
+# 🌳 vriksha-os-core
 **The Intelligent Operating System for Natural & Vrikshayurvedic Farming.**
 
-**Mission:** To digitize 2,500 years of Indian plant wisdom into a scalable AI engine that solves crop diseases using local, organic resources.
+**Mission:** To digitize 2,500 years of Indian plant wisdom into a scalable AI engine that solves crop diseases using local, organic resources and data-driven precision.
 
 ---
 
-## 🏗️ System Architecture
-Vriksha-OS is built on a **Master-Apprentice (Teacher-Student) framework**:
-1. **Acharya (The Teacher):** Powered by Gemini 3 Flash. High-level diagnosis and "Synthetic Wisdom" extraction from ancient texts and YouTube.
-2. **Shishya (The Student):** A custom, lightweight ML model designed to run locally on the farm once trained on 1,000+ verified rows.
+## 🛠️ System Architecture: The Acharya-Shishya Model
+Vriksha-OS is built on a **Master-Apprentice (Distillation) framework**:
+1. **Acharya (The Teacher):** Powered by Gemini 3 Flash. Handles high-level diagnosis and "Synthetic Wisdom" extraction from ancient texts and global experts.
+2. **Shishya (The Student):** A custom, lightweight ML model designed to run locally on the farm once trained on 1,000+ verified "Ground Truth" rows.
 
 ---
 
-## 🚦 Roadmap: The Foundation Phase (Phase 1)
-* [ ] **API Failover Rotator:** Automated switching between 10 Google Cloud Projects to ensure zero downtime.
-* [ ] **Assembly Line Folders:** * `/Tri_Pending`: Raw field audits.
-    * `/Tri_Training_Data`: Verified, AI-labeled "Gold" data.
-* [ ] **Jala-Check (Water Lab):** Logic for Bubble/Limescale analysis to correct prescriptions for hard water.
+## 🚦 Roadmap: Feature Status & Vision (2026)
+
+### **Phase 1: Industrial Foundation (IN PROGRESS ⏳)**
+- [x] **Master DB Connection:** Established Google Sheets/Script bridge.
+- [ ] **Acharya-Rotator:** Automated switching between 5–10 Google Cloud Project keys to ensure zero downtime (prevents `429 Busy` errors).
+- [ ] **Assembly Line Folders:** - `/Tri_Pending`: For raw, unprocessed field audits.
+    - `/Tri_Training_Data`: For AI-labeled, sorted, and "Verified Gold" images.
+- [ ] **Vriksha Knowledge Tab:** A verified database of traditional remedies (Neem, Bitter Plants, Fish Waste) for cross-referencing.
+
+### **Phase 2: Field Intelligence (PLANNED 🗓)**
+- [ ] **Field WebApp:** 3-click mobile interface for GPS, Image, and Video capture.
+- [ ] **Jala-Check (Mobile Water Lab):** AI-powered "Bubble Test" and "Limescale Scan" to assess water hardness before diagnosis.
+- [ ] **GPS/Soil Integration:** Automatic soil-type tagging (Red, Black, Alluvial, Laterite) using Geospatial APIs.
+- [ ] **Dynamic Pharmacy:** Context-aware ingredient checklists that adapt based on the detected disease.
+
+### **Phase 3: The Growth Loop (PLANNED 🗓)**
+- [ ] **Shruti (Knowledge Scraper):** Automated YouTube transcript extraction + Comment Sentiment Analysis to find community-verified hidden gems.
+- [ ] **Synthetic Linker:** Automatically pairing YouTube "Text Wisdom" with existing library "Visual Photos."
+- [ ] **Judge Dashboard:** A UI to Approve/Edit prescriptions based on AI Confidence Scores.
+- [ ] **Visual Recovery Bot:** WhatsApp follow-ups + "Before/After" AI image comparison for auto-verification of treatments.
 
 ---
 
-## 🏷️ The Data Value Chain
-Every row in our database is tagged by **Source** to ensure 100% traceability for international buyers:
-* **Field-Real:** Audits from Jayeone Farms & partners. (Highest Value)
-* **Scrape-Verified:** Wisdom from "Shruti" (YouTube Scraper) matched against Vriksha PDFs.
-* **Synthetic-AI:** Logic scenarios generated to bridge the gap for rare diseases.
+## 🏷️ Data Integrity & Source Tagging
+To ensure high-value traceability for international AgTech buyers, every row is tagged:
+* **Field-Real:** Audits from Jayeone Farms & local partners. (Highest Value)
+* **Scrape-Verified:** Wisdom extracted via "Shruti" and matched against Vrikshayurveda PDFs.
+* **Synthetic-AI:** Logic scenarios generated to bridge data gaps for rare diseases.
 
 ---
-*Built in Anantapur, India. Scaling for the World.*
+
+## 🛡️ Core Guardrails
+* **The 85% Confidence Rule:** Automatic fallback to Acharya (Teacher) if Shishya (Student) confidence is low.
+* **Water Salinity Correction:** Automatic modification of remedies (e.g., swapping milk for buttermilk) in high-salt soil conditions.
+* **The Bitter Principle (Tikta):** Prioritizing non-chemical, high-bitterness plants for pest and virus immunity.
+
+---
+*Developed by TriAiiag. Built in Anantapur, India. Scaling for the World.*
